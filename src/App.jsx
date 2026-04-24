@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { initialMenu } from './data';
 import CustomerView from './components/CustomerView';
+import OrderTrackingView from './components/OrderTrackingView';
 import { Utensils } from 'lucide-react';
 import { db } from './firebase';
 import { ref, push, set, onValue } from 'firebase/database';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('customer'); // 'customer' or 'admin'
+  const [activeTab, setActiveTab] = useState('menu'); // 'menu' or 'orders'
   const [orders, setOrders] = useState([]);
   const [cart, setCart] = useState([]);
   const [tableNumber, setTableNumber] = useState('');
@@ -68,23 +69,43 @@ function App() {
 
   return (
     <div className="app-container">
-      <header>
-        <h1>
-          <Utensils size={32} />
-          FlavorFusion
-        </h1>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h1>
+            <Utensils size={32} />
+            FlavorFusion
+          </h1>
+        </div>
+        <div className="tabs" style={{ margin: 0 }}>
+          <button 
+            className={`tab-btn ${activeTab === 'menu' ? 'active' : ''}`}
+            onClick={() => setActiveTab('menu')}
+          >
+            Menu
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => setActiveTab('orders')}
+          >
+            Order Information
+          </button>
+        </div>
       </header>
 
       <main>
-        <CustomerView 
-          menu={menu}
-          cart={cart}
-          setCart={setCart}
-          tableNumber={tableNumber}
-          setTableNumber={setTableNumber}
-          onPlaceOrder={handlePlaceOrder}
-          orders={orders}
-        />
+        {activeTab === 'menu' ? (
+          <CustomerView 
+            menu={menu}
+            cart={cart}
+            setCart={setCart}
+            tableNumber={tableNumber}
+            setTableNumber={setTableNumber}
+            onPlaceOrder={handlePlaceOrder}
+            orders={orders}
+          />
+        ) : (
+          <OrderTrackingView orders={orders} />
+        )}
       </main>
     </div>
   );
