@@ -3,6 +3,50 @@ import { Search, ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 import CustomDropdown from './CustomDropdown';
 
+const getStatusProgress = (status) => {
+  const s = (status || '').toLowerCase();
+  if (s === 'delivered' || s === 'completed' || s === 'picked up' || s === 'ready') return 3;
+  if (s === 'preparing' || s === 'prepared') return 2;
+  return 1; // accepted / pending
+};
+
+const OrderProgressBar = ({ status }) => {
+  const step = getStatusProgress(status);
+  const percentage = step === 1 ? 33 : step === 2 ? 66 : 100;
+  const label = step === 1 ? "Order Accepted" : step === 2 ? "Preparing Food" : "Ready / Picked Up";
+
+  return (
+    <div style={{ marginTop: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.8rem', fontWeight: 600 }}>
+        <span style={{ color: step >= 1 ? 'var(--accent-primary)' : 'var(--text-muted)' }}>Accepted</span>
+        <span style={{ color: step >= 2 ? 'var(--accent-primary)' : 'var(--text-muted)' }}>Preparing</span>
+        <span style={{ color: step === 3 ? 'var(--accent-success)' : 'var(--text-muted)' }}>Picked Up</span>
+      </div>
+      
+      <div style={{ 
+        width: '100%', 
+        height: '12px', 
+        background: 'rgba(255, 255, 255, 0.05)', 
+        borderRadius: '999px', 
+        overflow: 'hidden',
+        boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
+      }}>
+        <div className="progressive-bar-fill" style={{ 
+          width: `${percentage}%`, 
+          height: '100%', 
+          background: step === 3 ? 'var(--accent-success)' : 'var(--accent-primary)',
+          transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+          position: 'relative'
+        }}>
+        </div>
+      </div>
+      <div style={{ textAlign: 'center', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+        Current Status: <span style={{ color: step === 3 ? 'var(--accent-success)' : 'var(--text-color)', fontWeight: 600 }}>{label}</span>
+      </div>
+    </div>
+  );
+};
+
 const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlaceOrder, orders }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all'); // 'all', 'veg', 'non-veg'
@@ -171,6 +215,7 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                     {order.items?.map(i => `${i.quantity}x ${i.name}`).join(', ')}
                   </div>
+                  <OrderProgressBar status={order.status} />
                 </div>
               ))}
             </div>
