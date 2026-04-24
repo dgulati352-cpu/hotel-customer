@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { initialMenu } from './data';
 import CustomerView from './components/CustomerView';
 import OrderTrackingView from './components/OrderTrackingView';
-import { Utensils } from 'lucide-react';
+import { Utensils, Moon, Sun } from 'lucide-react';
 import { db } from './firebase';
 import { ref, push, set, onValue } from 'firebase/database';
 
@@ -12,6 +12,11 @@ function App() {
   const [cart, setCart] = useState([]);
   const [tableNumber, setTableNumber] = useState('');
   const [menu, setMenu] = useState(initialMenu);
+  const [theme, setTheme] = useState('light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     // Listen to live dishes from RTDB
@@ -76,7 +81,7 @@ function App() {
             FlavorFusion
           </h1>
         </div>
-        <div className="tabs" style={{ margin: 0 }}>
+        <div className="tabs" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button 
             className={`tab-btn ${activeTab === 'menu' ? 'active' : ''}`}
             onClick={() => setActiveTab('menu')}
@@ -88,6 +93,14 @@ function App() {
             onClick={() => setActiveTab('orders')}
           >
             Order Information
+          </button>
+          <button 
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
+            className="btn-outline" 
+            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', width: '40px', height: '40px' }}
+            title="Toggle Theme"
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>
         </div>
       </header>

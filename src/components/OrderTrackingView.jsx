@@ -84,7 +84,7 @@ const OrderTrackingView = ({ orders }) => {
         ) : currentTableOrders.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {currentTableOrders.map(order => (
-              <div key={order.id} className="glass-panel" style={{ padding: '1.5rem', background: '#ffffff', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
+              <div key={order.id} className="glass-panel" style={{ padding: '1.5rem', background: 'var(--bg-card)', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: 600 }}>Order #{order.id.toString().slice(-4)}</span>
                   <span className={`badge badge-${order.status || 'pending'}`} style={{ fontSize: '1rem', padding: '0.4rem 1rem' }}>{order.status || 'pending'}</span>
