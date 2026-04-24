@@ -24,7 +24,7 @@ const OrderProgressBar = ({ status }) => {
       <div style={{ 
         width: '100%', 
         height: '12px', 
-        background: 'rgba(255, 255, 255, 0.05)', 
+        background: 'rgba(0, 0, 0, 0.05)', 
         borderRadius: '999px', 
         overflow: 'hidden',
         boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
@@ -77,14 +77,14 @@ const OrderTrackingView = ({ orders }) => {
 
       <div>
         {searchTable === '' ? (
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 'var(--radius-lg)' }}>
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem', background: 'rgba(0, 0, 0, 0.02)', borderRadius: 'var(--radius-lg)' }}>
             <Utensils size={48} style={{ opacity: 0.2, margin: '0 auto 1rem auto' }} />
             <p>Please enter your table number above to view your active and past orders.</p>
           </div>
         ) : currentTableOrders.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {currentTableOrders.map(order => (
-              <div key={order.id} className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.03)' }}>
+              <div key={order.id} className="glass-panel" style={{ padding: '1.5rem', background: '#ffffff', boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: 600 }}>Order #{order.id.toString().slice(-4)}</span>
                   <span className={`badge badge-${order.status || 'pending'}`} style={{ fontSize: '1rem', padding: '0.4rem 1rem' }}>{order.status || 'pending'}</span>
@@ -100,7 +100,7 @@ const OrderTrackingView = ({ orders }) => {
             ))}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: 'var(--radius-lg)' }}>
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem', background: 'rgba(0, 0, 0, 0.02)', borderRadius: 'var(--radius-lg)' }}>
             No active orders found for Table {searchTable}.
           </div>
         )}

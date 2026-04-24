@@ -26,7 +26,7 @@ const OrderProgressBar = ({ status }) => {
       <div style={{ 
         width: '100%', 
         height: '12px', 
-        background: 'rgba(255, 255, 255, 0.05)', 
+        background: 'rgba(0, 0, 0, 0.05)', 
         borderRadius: '999px', 
         overflow: 'hidden',
         boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
@@ -204,10 +204,10 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
           </div>
 
           {currentTableOrders.length > 0 && (
-            <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(59, 130, 246, 0.2)', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div style={{ padding: '1rem', background: 'rgba(252, 128, 25, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(252, 128, 25, 0.2)', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
               <h3 style={{ fontSize: '1rem' }}>Order History</h3>
               {currentTableOrders.map(order => (
-                <div key={order.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div key={order.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Order #{order.id.toString().slice(-4)}</span>
                     <span className={`badge badge-${order.status || 'pending'}`}>{order.status || 'pending'}</span>

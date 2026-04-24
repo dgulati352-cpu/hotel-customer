@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-dark: #0f172a;
-  --bg-card: rgba(30, 41, 59, 0.7);
-  --bg-glass: rgba(15, 23, 42, 0.6);
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent-primary: #3b82f6;
-  --accent-primary-hover: #2563eb;
-  --accent-success: #10b981;
-  --accent-warning: #f59e0b;
-  --accent-danger: #ef4444;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  --bg-dark: #f0f0f5;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  --text-main: #282c3f;
+  --text-muted: #686b78;
+  --accent-primary: #fc8019;
+  --accent-primary-hover: #e37012;
+  --accent-success: #60b246;
+  --accent-warning: #f5a623;
+  --accent-danger: #e23744;
+  --border-color: #d4d5d9;
+  --glass-border: 1px solid rgba(0, 0, 0, 0.05);
+  --glass-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 8px;
@@ -30,10 +30,7 @@ body {
   background-color: var(--bg-dark);
   color: var(--text-main);
   min-height: 100vh;
-  /* background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, transparent 50%); */
-  background: radial-gradient(circle at top right, #1e3a8a 0%, transparent 40%),
-              radial-gradient(circle at bottom left, #064e3b 0%, transparent 40%),
-              var(--bg-dark);
+  background: var(--bg-dark);
   background-attachment: fixed;
   overflow-x: hidden;
 }
@@ -49,17 +46,18 @@ button {
 
 input {
   font-family: inherit;
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
   border: 1px solid var(--border-color);
   color: var(--text-main);
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input:focus {
   border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(252, 128, 25, 0.2);
 }
 
 /* Custom Dropdown Styles */
@@ -70,7 +68,7 @@ input:focus {
 }
 
 .dropdown-header {
-  background: rgba(15, 23, 42, 0.8);
+  background: #ffffff;
   border: 1px solid var(--border-color);
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
@@ -80,11 +78,13 @@ input:focus {
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--text-main);
+  font-weight: 500;
 }
 
 .dropdown-header:hover, .dropdown-header.open {
   border-color: var(--accent-primary);
-  background: rgba(30, 41, 59, 0.9);
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(252, 128, 25, 0.1);
 }
 
 .dropdown-icon {
@@ -104,6 +104,10 @@ input:focus {
   width: 100%;
   z-index: 50;
   padding: 0.5rem;
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -120,25 +124,24 @@ input:focus {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background 0.2s;
-  color: var(--text-muted);
+  transition: background 0.2s, color 0.2s;
+  color: var(--text-main);
+  font-weight: 500;
 }
 
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
+  background: rgba(252, 128, 25, 0.08);
+  color: var(--accent-primary);
 }
 
 .dropdown-item.selected {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(252, 128, 25, 0.12);
   color: var(--accent-primary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .glass-panel {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--glass-shadow);
@@ -149,17 +152,19 @@ input:focus {
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
-  font-weight: 500;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .btn-primary:hover {
   background: var(--accent-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 16px rgba(252, 128, 25, 0.3);
 }
 
 .btn-primary:disabled {
@@ -173,13 +178,15 @@ input:focus {
 .btn-success:hover { background: #059669; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
 
 .btn-outline {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--accent-primary);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
+  color: var(--accent-primary);
+  font-weight: 600;
 }
 
 .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(252, 128, 25, 0.08);
 }
 
 .badge {
@@ -220,13 +227,12 @@ header {
 
 header h1 {
   font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(to right, #60a5fa, #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  color: var(--accent-primary);
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  letter-spacing: -0.02em;
 }
 
 .tabs {
@@ -235,15 +241,16 @@ header h1 {
 }
 
 .tab-btn {
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
   color: var(--text-muted);
+  font-size: 1.05rem;
 }
 
 .tab-btn.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
+  background: rgba(252, 128, 25, 0.1);
+  color: var(--accent-primary);
 }
 
 /* Grid Layouts */
@@ -338,7 +345,7 @@ header h1 {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -477,8 +484,8 @@ header h1 {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-dark); }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.25); }
 
 @keyframes shake {
   0% { transform: translateX(0); }
