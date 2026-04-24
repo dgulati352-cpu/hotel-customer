@@ -77,9 +77,8 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
     onPlaceOrder(paymentDetails);
   };
 
-  // Find the latest order for the current table to show its status
-  const currentTableOrders = orders.filter(o => o.tableNumber === tableNumber);
-  const latestOrder = currentTableOrders.length > 0 ? currentTableOrders[0] : null;
+  // Find all orders for the current table to show history
+  const currentTableOrders = orders.filter(o => String(o.table_number || o.tableNumber) === String(tableNumber));
 
   return (
     <div className="main-grid">
@@ -160,13 +159,20 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
             />
           </div>
 
-          {latestOrder && (
-            <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-              <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Latest Order Status</h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Order #{latestOrder.id.toString().slice(-4)}</span>
-                <span className={`badge badge-${latestOrder.status}`}>{latestOrder.status}</span>
-              </div>
+          {currentTableOrders.length > 0 && (
+            <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(59, 130, 246, 0.2)', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1rem' }}>Order History</h3>
+              {currentTableOrders.map(order => (
+                <div key={order.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Order #{order.id.toString().slice(-4)}</span>
+                    <span className={`badge badge-${order.status || 'pending'}`}>{order.status || 'pending'}</span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    {order.items?.map(i => `${i.quantity}x ${i.name}`).join(', ')}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 

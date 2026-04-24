@@ -1,49 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { initialMenu } from './data';
 import CustomerView from './components/CustomerView';
 import { Utensils } from 'lucide-react';
+import { db } from './firebase';
+import { ref, push, set, onValue } from 'firebase/database';
 
 function App() {
   const [activeTab, setActiveTab] = useState('customer'); // 'customer' or 'admin'
   const [orders, setOrders] = useState([]);
   const [cart, setCart] = useState([]);
   const [tableNumber, setTableNumber] = useState('');
+  const [menu, setMenu] = useState(initialMenu);
 
-  const handlePlaceOrder = (paymentDetails) => {
+  useEffect(() => {
+    // Listen to live dishes from RTDB
+    const dishesRef = ref(db, 'dishes');
+    const unsubscribeMenu = onValue(dishesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const dishesData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        setMenu(dishesData);
+      }
+    });
+
+    // Listen to live orders (so customer sees status updates)
+    const ordersRef = ref(db, 'orders');
+    const unsubscribeOrders = onValue(ordersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        let dbOrders = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        // sort by timestamp desc
+        dbOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setOrders(dbOrders);
+      }
+    });
+
+    return () => {
+      unsubscribeMenu();
+      unsubscribeOrders();
+    };
+  }, []);
+
+  const handlePlaceOrder = async (paymentDetails) => {
     if (cart.length === 0 || !tableNumber) return;
 
-    const newOrder = {
-      id: Date.now(),
-      tableNumber,
-      items: [...cart],
-      total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-      status: 'accepted', // accepted -> preparing -> delivered
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      paymentDetails
-    };
-
-    setOrders(prev => [newOrder, ...prev]);
-    setCart([]);
-    setTableNumber('');
-
-    // Simulate order tracking
-    setTimeout(() => {
-      setOrders(currentOrders => currentOrders.map(order => 
-        order.id === newOrder.id ? { ...order, status: 'preparing' } : order
-      ));
-    }, 5000); // 5 seconds to preparing
-
-    setTimeout(() => {
-      setOrders(currentOrders => currentOrders.map(order => 
-        order.id === newOrder.id ? { ...order, status: 'delivered' } : order
-      ));
-    }, 12000); // 12 seconds to delivered
+    try {
+      const newOrderRef = push(ref(db, 'orders'));
+      await set(newOrderRef, {
+        table_number: tableNumber,
+        items: cart.map(item => ({ name: item.name, price: item.price, quantity: item.quantity })),
+        total_amount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        status: 'pending',
+        payment_method: paymentDetails.method || "Online",
+        timestamp: new Date().toISOString()
+      });
+      setCart([]);
+      setTableNumber('');
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      alert("Failed to place order.");
+    }
   };
 
   const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
+    // Readonly on customer side now, handled by admin
   };
 
   return (
@@ -57,7 +77,7 @@ function App() {
 
       <main>
         <CustomerView 
-          menu={initialMenu}
+          menu={menu}
           cart={cart}
           setCart={setCart}
           tableNumber={tableNumber}

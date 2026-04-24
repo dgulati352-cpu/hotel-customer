@@ -195,7 +195,9 @@ input:focus {
 .badge-non-veg { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
 .badge-accepted { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+.badge-preparing { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
 .badge-prepared { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.badge-ready { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 .badge-delivered { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
 
 /* Layout */
