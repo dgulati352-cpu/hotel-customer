@@ -194,12 +194,12 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
               type="number" 
               placeholder="Enter your table number (e.g. 5)" 
               value={tableNumber}
-              onChange={(e) => {
-                setTableNumber(e.target.value);
-                setTableError(false);
-              }}
+              readOnly
               className={tableError ? 'input-error' : ''}
-              style={tableError ? { borderColor: 'var(--accent-danger)', animation: 'shake 0.4s' } : {}}
+              style={Object.assign(
+                { background: 'var(--bg-dark)', cursor: 'not-allowed' },
+                tableError ? { borderColor: 'var(--accent-danger)', animation: 'shake 0.4s' } : {}
+              )}
             />
           </div>
 
