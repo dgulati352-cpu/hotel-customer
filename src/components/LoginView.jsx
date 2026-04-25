@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Utensils, Mail, Hash, ChevronRight, Lock } from 'lucide-react';
 import { auth } from '../firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const LoginView = ({ onLogin }) => {
   const [loginType, setLoginType] = useState('table'); // 'table' or 'email'
@@ -32,21 +32,6 @@ const LoginView = ({ onLogin }) => {
       }
     } else {
       onLogin({ role: 'customer', identifier: inputValue });
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      onLogin({ role: 'admin', identifier: result.user.email });
-    } catch (err) {
-      console.error("Google login error:", err);
-      setError('Failed to login with Google');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -120,16 +105,6 @@ const LoginView = ({ onLogin }) => {
               </span>
             )}
           </button>
-
-          {loginType === 'email' && (
-            <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>Or</p>
-              <button type="button" onClick={handleGoogleLogin} className="btn-outline" style={{ width: '100%', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }} disabled={loading}>
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: 18, height: 18 }} />
-                Sign in with Google
-              </button>
-            </div>
-          )}
         </form>
       </div>
     </div>
