@@ -1,8 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, Plus, Minus, Trash2, Heart, Leaf, Flame, ClipboardList } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Trash2, Heart, Leaf, Flame, ClipboardList, Ticket, Check, X } from 'lucide-react';
+import { db } from '../firebase';
+import { ref, onValue } from 'firebase/database';
 import PaymentModal from './PaymentModal';
 import CustomDropdown from './CustomDropdown';
+import TasteProfiler from './TasteProfiler';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 const getStatusProgress = (status) => {
   const s = (status || '').toLowerCase();
@@ -36,22 +40,126 @@ const OrderProgressBar = ({ status }) => {
   );
 };
 
-const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlaceOrder, orders }) => {
+const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlaceOrder, orders, user }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [filterCategory, setFilterCategory] = useState('all');
   const [sortPrice, setSortPrice] = useState('none');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isTasteProfilerOpen, setIsTasteProfilerOpen] = useState(false);
   const [tableError, setTableError] = useState(false);
+  const [orderType, setOrderType] = useState('dine-in');
   // Track selected portion for each dish: { [dishId]: 'half' | 'full' }
   const [selectedPortions, setSelectedPortions] = useState({});
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState('');
+  const [allPromos, setAllPromos] = useState([]);
+
+  React.useEffect(() => {
+    const promoRef = ref(db, 'promo_codes');
+    const unsubscribe = onValue(promoRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setAllPromos(Object.keys(data).map(key => ({ id: key, ...data[key] })));
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const handleApplyPromo = () => {
+    setPromoError('');
+    const code = promoInput.toUpperCase().trim();
+    if (!code) return;
+
+    const promo = allPromos.find(p => p.code === code);
+    if (!promo) {
+      setPromoError('Invalid code');
+      setAppliedPromo(null);
+      return;
+    }
+
+    if (!promo.active) {
+      setPromoError('Code expired');
+      return;
+    }
+
+    if (new Date(promo.expiryDate) < new Date()) {
+      setPromoError('Code expired');
+      return;
+    }
+
+    if (cartTotal < promo.minAmount) {
+      setPromoError(`Min. order ₹${promo.minAmount} required`);
+      return;
+    }
+
+    if (!promo.appliesToAll && promo.applicableItems && promo.applicableItems.length > 0) {
+      const hasApplicableItem = cart.some(item => promo.applicableItems.includes(item.id));
+      if (!hasApplicableItem) {
+        setPromoError('This code is not applicable to the items in your basket');
+        return;
+      }
+    }
+
+    const totalUsageCount = orders.filter(o => o.promoCode === promo.code).length;
+    if (promo.usageLimit && totalUsageCount >= promo.usageLimit) {
+      setPromoError('Promo code fully claimed');
+      return;
+    }
+
+    if (user && promo.usageLimitPerUser) {
+      const userUsageCount = orders.filter(o => o.userId === user.uid && o.promoCode === promo.code).length;
+      if (userUsageCount >= promo.usageLimitPerUser) {
+        setPromoError('You have reached the usage limit for this code');
+        return;
+      }
+    }
+
+    setAppliedPromo(promo);
+    setPromoInput('');
+  };
+
+  const discountAmount = useMemo(() => {
+    if (!appliedPromo) return 0;
+    
+    let applicableTotal = cartTotal;
+    if (!appliedPromo.appliesToAll && appliedPromo.applicableItems && appliedPromo.applicableItems.length > 0) {
+      applicableTotal = cart.reduce((sum, item) => {
+        if (appliedPromo.applicableItems.includes(item.id)) {
+          return sum + (item.price * item.quantity);
+        }
+        return sum;
+      }, 0);
+    }
+
+    if (applicableTotal === 0) return 0;
+
+    if (appliedPromo.type === 'percentage') {
+      return Math.round((applicableTotal * appliedPromo.value) / 100);
+    }
+    return Math.min(appliedPromo.value, applicableTotal);
+  }, [appliedPromo, cartTotal, cart]);
+
+  const finalTotal = cartTotal - discountAmount;
+
+  const categories = useMemo(() => {
+    const cats = new Set(menu.map(item => item.category).filter(Boolean));
+    return ['all', ...Array.from(cats)];
+  }, [menu]);
 
   const filteredAndSortedMenu = useMemo(() => {
     let result = [...menu];
     if (searchTerm) {
       result = result.filter(item => 
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        item.category.toLowerCase().includes(searchTerm.toLowerCase())
+        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        item.category?.toLowerCase().includes(searchTerm.toLowerCase())
       );
+    }
+    if (filterCategory !== 'all') {
+      result = result.filter(item => item.category?.toLowerCase() === filterCategory.toLowerCase());
     }
     if (filterType !== 'all') {
       result = result.filter(item => item.type === filterType);
@@ -62,10 +170,24 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
       result.sort((a, b) => b.price - a.price);
     }
     return result;
-  }, [menu, searchTerm, filterType, sortPrice]);
+  }, [menu, searchTerm, filterType, filterCategory, sortPrice]);
 
   const addToCart = (item) => {
-    if (item.portionsEnabled) {
+    if (item.weightsEnabled) {
+      const portion = selectedPortions[item.id] || '250g';
+      let price = item.price;
+      if (portion === '250g') price = item.weight250Price;
+      if (portion === '500g') price = item.weight500Price;
+      if (portion === '1kg') price = item.weight1kgPrice;
+      
+      const cartId = `${item.id}_${portion}`;
+      const existingItem = cart.find(cartItem => cartItem.cartId === cartId);
+      if (existingItem) {
+        setCart(cart.map(ci => ci.cartId === cartId ? { ...ci, quantity: ci.quantity + 1 } : ci));
+      } else {
+        setCart([...cart, { ...item, cartId, portion, price, quantity: 1 }]);
+      }
+    } else if (item.portionsEnabled) {
       const portion = selectedPortions[item.id] || 'half';
       const price = portion === 'half' ? item.halfPrice : item.fullPrice;
       const cartId = `${item.id}_${portion}`;
@@ -101,8 +223,6 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
     setCart(cart.filter(item => item.cartId !== cartId));
   };
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
   const handleCheckout = () => {
     if (!tableNumber) {
       setTableError(true);
@@ -114,10 +234,21 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
 
   const handlePaymentSuccess = (paymentDetails) => {
     setIsPaymentModalOpen(false);
-    onPlaceOrder(paymentDetails);
+    onPlaceOrder({ 
+      ...paymentDetails, 
+      discount: discountAmount, 
+      promoCode: appliedPromo?.code || null,
+      finalTotal: finalTotal,
+      orderType: orderType
+    });
   };
 
-  const currentTableOrders = orders.filter(o => String(o.table_number || o.tableNumber) === String(tableNumber));
+  const currentTableOrders = orders.filter(o => {
+    if (user && o.userId) {
+      return o.userId === user.uid;
+    }
+    return String(o.table_number || o.tableNumber) === String(tableNumber);
+  });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -167,17 +298,41 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
         </motion.section>
 
         <div className="filters glass-panel">
-          <div className="search-bar">
-            <Search className="search-icon" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search dishes..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', width: '100%', alignItems: 'center' }}>
+            <div className="search-bar" style={{ flex: 1, minWidth: '250px', margin: 0 }}>
+              <Search className="search-icon" size={20} />
+              <input 
+                type="text" 
+                placeholder="Search dishes..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsTasteProfilerOpen(true)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                background: 'linear-gradient(135deg, var(--accent-primary), #a855f7)',
+                color: 'white', padding: '0.75rem 1.25rem', borderRadius: '12px',
+                border: 'none', cursor: 'pointer', fontWeight: 600, boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)'
+              }}
+            >
+              <Sparkles size={18} />
+              <span className="hide-mobile">Find My Craving</span>
+            </motion.button>
           </div>
           
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+            <CustomDropdown 
+              value={filterCategory} 
+              onChange={setFilterCategory} 
+              options={categories.map(c => ({ 
+                value: c, 
+                label: c === 'all' ? 'All Categories' : c.charAt(0).toUpperCase() + c.slice(1) 
+              }))} 
+            />
             <CustomDropdown 
               value={filterType} 
               onChange={setFilterType} 
@@ -206,10 +361,15 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
           animate="visible"
         >
           {filteredAndSortedMenu.map((item) => {
-            const activePortion = selectedPortions[item.id] || 'half';
-            const displayPrice = item.portionsEnabled
-              ? (activePortion === 'half' ? item.halfPrice : item.fullPrice)
-              : item.price;
+            const activePortion = selectedPortions[item.id] || (item.weightsEnabled ? '250g' : 'half');
+            let displayPrice = item.price;
+            if (item.weightsEnabled) {
+              if (activePortion === '250g') displayPrice = item.weight250Price;
+              if (activePortion === '500g') displayPrice = item.weight500Price;
+              if (activePortion === '1kg') displayPrice = item.weight1kgPrice;
+            } else if (item.portionsEnabled) {
+              displayPrice = activePortion === 'half' ? item.halfPrice : item.fullPrice;
+            }
             return (
               <motion.div 
                 key={item.id} 
@@ -231,7 +391,28 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
                   <p style={{ color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase' }}>{item.category}</p>
                   <h3 className="menu-title">{item.name}</h3>
 
-                  {item.portionsEnabled && (
+                  {item.weightsEnabled ? (
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '0.5rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                      {['250g', '500g', '1kg'].map(w => {
+                        const price = w === '250g' ? item.weight250Price : (w === '500g' ? item.weight500Price : item.weight1kgPrice);
+                        if (!price) return null;
+                        return (
+                          <button
+                            key={w}
+                            onClick={() => setSelectedPortions(prev => ({ ...prev, [item.id]: w }))}
+                            style={{
+                              flex: 1, minWidth: '30%', padding: '4px 0', borderRadius: '20px', border: '1.5px solid var(--accent-primary)',
+                              cursor: 'pointer', fontWeight: 700, fontSize: '0.7rem', transition: 'all 0.2s',
+                              background: activePortion === w ? 'var(--accent-primary)' : 'transparent',
+                              color: activePortion === w ? '#fff' : 'var(--accent-primary)',
+                            }}
+                          >
+                            {w} ₹{price}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : item.portionsEnabled && (
                     <div style={{ display: 'flex', gap: '6px', marginTop: '0.5rem', marginBottom: '0.25rem' }}>
                       {['half', 'full'].map(p => (
                         <button
@@ -346,11 +527,39 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              style={{ paddingTop: '1.5rem', borderTop: '2px dashed var(--border-color)' }}
+              style={{ paddingTop: '1rem', borderTop: '2px dashed var(--border-color)' }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Total Amount</span>
-                <span style={{ fontSize: '1.75rem', fontWeight: 800 }}>₹{cartTotal}</span>
+
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', background: 'var(--bg-input)', padding: '0.5rem', borderRadius: 'var(--radius-lg)' }}>
+                  <button 
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: 'var(--radius-md)', border: 'none', background: orderType === 'dine-in' ? 'var(--accent-primary)' : 'transparent', color: orderType === 'dine-in' ? 'white' : 'var(--text-main)', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s ease' }}
+                    onClick={() => setOrderType('dine-in')}
+                  >
+                    Dine In
+                  </button>
+                  <button 
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: 'var(--radius-md)', border: 'none', background: orderType === 'takeaway' ? 'var(--accent-primary)' : 'transparent', color: orderType === 'takeaway' ? 'white' : 'var(--text-main)', fontWeight: 700, cursor: 'pointer', transition: 'all 0.3s ease' }}
+                    onClick={() => setOrderType('takeaway')}
+                  >
+                    Takeaway
+                  </button>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                  <span>Subtotal</span>
+                  <span>₹{cartTotal}</span>
+                </div>
+                {appliedPromo && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--accent-success)', fontWeight: 600 }}>
+                    <span>Discount ({appliedPromo.type === 'percentage' ? `${appliedPromo.value}%` : `Fixed`})</span>
+                    <span>-₹{discountAmount}</span>
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-color)' }}>
+                  <span style={{ fontWeight: 700 }}>Total</span>
+                  <span style={{ fontSize: '1.75rem', fontWeight: 800 }}>₹{finalTotal}</span>
+                </div>
               </div>
               <button 
                 className="btn-primary" 
@@ -385,11 +594,29 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
 
       {isPaymentModalOpen && (
         <PaymentModal 
-          total={cartTotal} 
+          total={finalTotal} 
+          cartTotal={cartTotal}
+          discountAmount={discountAmount}
+          promoInput={promoInput}
+          setPromoInput={setPromoInput}
+          handleApplyPromo={handleApplyPromo}
+          promoError={promoError}
+          appliedPromo={appliedPromo}
+          setAppliedPromo={setAppliedPromo}
           onClose={() => setIsPaymentModalOpen(false)} 
           onSuccess={handlePaymentSuccess} 
         />
       )}
+
+      <AnimatePresence>
+        {isTasteProfilerOpen && (
+          <TasteProfiler 
+            menu={menu} 
+            onClose={() => setIsTasteProfilerOpen(false)}
+            onSelectDish={(dish) => addToCart(dish)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
