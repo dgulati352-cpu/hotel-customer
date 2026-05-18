@@ -38,6 +38,8 @@ function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [hasSentWelcomeEmail, setHasSentWelcomeEmail] = useState(false);
   const [showUpdateReady, setShowUpdateReady] = useState(false);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false);
+  const [isProcessingFeedback, setIsProcessingFeedback] = useState(false);
   const APP_VERSION = '2.0.2';
 
   useEffect(() => {
@@ -139,9 +141,6 @@ function App() {
   }, [user, tableNumber, hasSentWelcomeEmail]);
 
   const handlePlaceOrder = async (paymentDetails) => {
-    if (cart.length === 0 || !tableNumber || !user) return;
-
-  const handlePlaceOrder = async (paymentDetails) => {
     if (cart.length === 0 || !tableNumber || !user || isProcessingOrder) return;
 
     const now = Date.now();
@@ -241,21 +240,6 @@ function App() {
       console.error("Error submitting feedback: ", e);
     } finally {
       setIsProcessingFeedback(false);
-    }
-  };
-
-  const handleFeedbackSubmit = async (feedbackData) => {
-    try {
-      const feedbackRef = push(ref(db, 'feedback'));
-      await set(feedbackRef, feedbackData);
-      
-      // Update order to mark it as rated
-      if (feedbackData.orderId) {
-        const orderRef = ref(db, `orders/${feedbackData.orderId}`);
-        await update(orderRef, { hasFeedback: true });
-      }
-    } catch (e) {
-      console.error("Error submitting feedback: ", e);
     }
   };
 

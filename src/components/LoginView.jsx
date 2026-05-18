@@ -99,6 +99,28 @@ const LoginView = ({ onLogin }) => {
               </>
             )}
           </motion.button>
+          
+          <motion.button 
+            className="btn-outline" 
+            onClick={() => {
+              if (!tableNum.trim()) {
+                setError('Please enter a table number first.');
+                return;
+              }
+              const mockUser = {
+                uid: 'demo_customer_' + Math.floor(Math.random() * 10000),
+                displayName: 'Demo Customer',
+                email: 'demo@flavorfusion.com'
+              };
+              onLogin(tableNum.trim(), mockUser);
+            }}
+            disabled={loading}
+            style={{ width: '100%', height: '50px', fontSize: '1rem', borderRadius: 'var(--radius-lg)', marginTop: '0.75rem', display: 'flex', justifyContent: 'center', alignItems: 'center', borderColor: 'var(--accent-primary)', color: 'var(--text-main)', background: 'transparent' }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Use Demo/Test Account
+          </motion.button>
         </div>
         
         <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
