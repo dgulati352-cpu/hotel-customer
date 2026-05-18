@@ -42,6 +42,11 @@ const AdminView = ({ orders, updateOrderStatus }) => {
             <div className="order-header">
               <div>
                 <h3 style={{ fontSize: '1.25rem' }}>Table {order.table_number || order.tableNumber || 'N/A'}</h3>
+                {order.userName && (
+                  <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent-primary)', marginTop: '0.1rem' }}>
+                    {order.userName}
+                  </div>
+                )}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                   <Clock size={14} /> {formatTime(order.timestamp || order.time)} | #{order.id?.toString().slice(-4)}
                 </div>

@@ -1,4 +1,5 @@
-const CACHE_NAME = 'flavorfusion-v1';
+const CACHE_NAME = 'flavorfusion-v2.0.2';
+const VERSION = '2.0.2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -11,7 +12,13 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
-  self.skipWaiting();
+});
+
+// Message handler to skip waiting
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Activate — clean up old caches
