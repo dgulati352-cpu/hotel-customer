@@ -40,7 +40,11 @@ const PaymentModal = ({ total, cartTotal, discountAmount, promoInput, setPromoIn
       key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_dummy_key", 
       amount: Math.round(total * 100), 
       currency: "INR",
+<<<<<<< Updated upstream
       name: "FlavorFusion Premium",
+=======
+      name: "Lavassaa Premium",
+>>>>>>> Stashed changes
       description: "Food Order Payment",
       handler: function (response) {
         setIsProcessing(false);

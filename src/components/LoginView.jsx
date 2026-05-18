@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInAnonymously } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { Utensils, TableProperties } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -30,6 +30,24 @@ const LoginView = ({ onLogin }) => {
     }
   };
 
+  const handleDemoLogin = async () => {
+    if (!tableNum.trim()) {
+      setError('Please enter a table number first.');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      setError('');
+      const result = await signInAnonymously(auth);
+      onLogin(tableNum.trim(), result.user);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to sign in with Demo Account. Please try again.');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="login-container">
       <motion.div 
@@ -43,13 +61,11 @@ const LoginView = ({ onLogin }) => {
             className="login-logo"
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            style={{ display: 'flex', justifyContent: 'center' }}
           >
-            <div style={{ background: 'var(--accent-primary-glow)', padding: '1.25rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Utensils size={48} color="var(--accent-primary)" />
-            </div>
+            <h1 style={{ color: 'var(--accent-primary)', fontFamily: '"Great Vibes", cursive', fontSize: '3.5rem', margin: 0 }}>Lavassa</h1>
           </motion.div>
-          <h2 style={{ fontSize: '2.25rem', fontWeight: 800, letterSpacing: '-0.04em', marginTop: '1.5rem' }}>Welcome to FlavorFusion</h2>
-          <p style={{ fontSize: '1.1rem', marginTop: '0.5rem', color: 'var(--text-muted)' }}>Experience gourmet dining at your fingertips.</p>
+          <p style={{ fontSize: '1.1rem', marginTop: '1.25rem', color: 'var(--text-muted)' }}>Experience gourmet dining at your fingertips.</p>
         </div>
 
         {error && (
@@ -99,6 +115,7 @@ const LoginView = ({ onLogin }) => {
               </>
             )}
           </motion.button>
+<<<<<<< Updated upstream
           
           <motion.button 
             className="btn-outline" 
@@ -120,6 +137,31 @@ const LoginView = ({ onLogin }) => {
             whileTap={{ scale: 0.98 }}
           >
             Use Demo/Test Account
+=======
+
+          <motion.button 
+            className="btn-secondary" 
+            onClick={handleDemoLogin} 
+            disabled={loading || !tableNum.trim()}
+            style={{ 
+              width: '100%', 
+              height: '60px', 
+              fontSize: '1.1rem', 
+              borderRadius: 'var(--radius-lg)', 
+              marginTop: '1rem', 
+              display: 'flex', 
+              justify: 'center', 
+              alignItems: 'center', 
+              gap: '0.75rem',
+              backgroundColor: 'rgba(212,175,55,0.1)',
+              border: '1px solid var(--accent-primary)',
+              color: 'var(--accent-primary)'
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {loading ? 'Entering...' : 'Use Demo/Test Account'}
+>>>>>>> Stashed changes
           </motion.button>
         </div>
         

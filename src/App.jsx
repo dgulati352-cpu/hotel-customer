@@ -38,8 +38,11 @@ function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [hasSentWelcomeEmail, setHasSentWelcomeEmail] = useState(false);
   const [showUpdateReady, setShowUpdateReady] = useState(false);
+<<<<<<< Updated upstream
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [isProcessingFeedback, setIsProcessingFeedback] = useState(false);
+=======
+>>>>>>> Stashed changes
   const APP_VERSION = '2.0.2';
 
   useEffect(() => {
@@ -139,6 +142,12 @@ function App() {
       setHasSentWelcomeEmail(false);
     }
   }, [user, tableNumber, hasSentWelcomeEmail]);
+<<<<<<< Updated upstream
+=======
+
+  const handlePlaceOrder = async (paymentDetails) => {
+    if (cart.length === 0 || !tableNumber || !user) return;
+>>>>>>> Stashed changes
 
   const handlePlaceOrder = async (paymentDetails) => {
     if (cart.length === 0 || !tableNumber || !user || isProcessingOrder) return;
@@ -243,6 +252,21 @@ function App() {
     }
   };
 
+  const handleFeedbackSubmit = async (feedbackData) => {
+    try {
+      const feedbackRef = push(ref(db, 'feedback'));
+      await set(feedbackRef, feedbackData);
+      
+      // Update order to mark it as rated
+      if (feedbackData.orderId) {
+        const orderRef = ref(db, `orders/${feedbackData.orderId}`);
+        await update(orderRef, { hasFeedback: true });
+      }
+    } catch (e) {
+      console.error("Error submitting feedback: ", e);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -273,8 +297,7 @@ function App() {
       <div className="app-container">
         <header>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Utensils size={32} color="var(--accent-primary)" />
-            <h1 style={{ margin: 0 }}>FlavorFusion</h1>
+            <h2 style={{ margin: 0, color: 'var(--accent-primary)', fontFamily: '"Great Vibes", cursive', fontSize: '2rem' }}>Lavassa</h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             {deferredPrompt && (
@@ -295,6 +318,28 @@ function App() {
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
           </div>
+<<<<<<< Updated upstream
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {deferredPrompt && (
+              <button 
+                onClick={handleInstallClick} 
+                className="btn-primary" 
+                style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
+              >
+                <Download size={16} />
+                <span className="hide-mobile">Install App</span>
+              </button>
+            )}
+            <button 
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
+              className="btn-outline" 
+              style={{ borderRadius: '50%', width: '45px', height: '45px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+          </div>
+=======
+>>>>>>> Stashed changes
         </header>
         <LoginView onLogin={(tNum, loggedUser) => {
           setTableNumber(tNum);
@@ -308,8 +353,7 @@ function App() {
     <div className="app-container">
       <header>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Utensils size={32} color="var(--accent-primary)" />
-          <h1 style={{ margin: 0 }}>FlavorFusion</h1>
+          <h2 style={{ margin: 0, color: 'var(--accent-primary)', fontFamily: '"Great Vibes", cursive', fontSize: '2rem' }}>Lavassa</h2>
         </div>
         
         <div className="tabs">
@@ -414,8 +458,12 @@ function App() {
         alignItems: 'center'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+<<<<<<< Updated upstream
           <Utensils size={14} />
           <span>FlavorFusion Premium &copy; 2026</span>
+=======
+          <span>Lavassa Premium &copy; 2026</span>
+>>>>>>> Stashed changes
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-secondary)', padding: '4px 10px', borderRadius: '12px' }}>
           <Info size={12} />

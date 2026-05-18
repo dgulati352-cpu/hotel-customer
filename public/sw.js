@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 const CACHE_NAME = 'flavorfusion-v2.0.2';
+=======
+const CACHE_NAME = 'lavassaa-v2.0.2';
+>>>>>>> Stashed changes
 const VERSION = '2.0.2';
 const STATIC_ASSETS = [
   '/',
