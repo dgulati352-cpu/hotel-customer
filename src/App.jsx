@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { initialMenu } from './data';
 import CustomerView from './components/CustomerView';
 import OrderTrackingView from './components/OrderTrackingView';
-import { Utensils, Moon, Sun, LogOut, LayoutGrid, ClipboardList } from 'lucide-react';
+import { Utensils, Moon, Sun, LogOut, LayoutGrid, ClipboardList, Download } from 'lucide-react';
 import { db } from './firebase';
 import { ref, push, set, onValue, update } from 'firebase/database';
 import { auth } from './firebase';
@@ -22,6 +22,26 @@ function App() {
   const [theme, setTheme] = useState('light');
   const [user, setUser] = useState(null);
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -114,13 +134,25 @@ function App() {
             <Utensils size={32} color="var(--accent-primary)" />
             <h1 style={{ margin: 0 }}>FlavorFusion</h1>
           </div>
-          <button 
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
-            className="btn-outline" 
-            style={{ borderRadius: '50%', width: '45px', height: '45px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {deferredPrompt && (
+              <button 
+                onClick={handleInstallClick} 
+                className="btn-primary" 
+                style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
+              >
+                <Download size={16} />
+                <span className="hide-mobile">Install App</span>
+              </button>
+            )}
+            <button 
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
+              className="btn-outline" 
+              style={{ borderRadius: '50%', width: '45px', height: '45px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
+          </div>
         </header>
         <LoginView onLogin={(tNum, loggedUser) => {
           setTableNumber(tNum);
@@ -160,6 +192,16 @@ function App() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {deferredPrompt && (
+            <button 
+              onClick={handleInstallClick} 
+              className="btn-primary" 
+              style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
+            >
+              <Download size={16} />
+              <span className="hide-mobile">Install App</span>
+            </button>
+          )}
           <button 
             onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
             className="btn-outline" 
