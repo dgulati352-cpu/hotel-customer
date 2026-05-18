@@ -4,7 +4,9 @@ import { db } from '../firebase';
 import { ref, onValue } from 'firebase/database';
 import PaymentModal from './PaymentModal';
 import CustomDropdown from './CustomDropdown';
+import TasteProfiler from './TasteProfiler';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 const getStatusProgress = (status) => {
   const s = (status || '').toLowerCase();
@@ -44,6 +46,7 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
   const [filterCategory, setFilterCategory] = useState('all');
   const [sortPrice, setSortPrice] = useState('none');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isTasteProfilerOpen, setIsTasteProfilerOpen] = useState(false);
   const [tableError, setTableError] = useState(false);
   const [orderType, setOrderType] = useState('dine-in');
   // Track selected portion for each dish: { [dishId]: 'half' | 'full' }
@@ -295,14 +298,30 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
         </motion.section>
 
         <div className="filters glass-panel">
-          <div className="search-bar">
-            <Search className="search-icon" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search dishes..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', width: '100%', alignItems: 'center' }}>
+            <div className="search-bar" style={{ flex: 1, minWidth: '250px', margin: 0 }}>
+              <Search className="search-icon" size={20} />
+              <input 
+                type="text" 
+                placeholder="Search dishes..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsTasteProfilerOpen(true)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                background: 'linear-gradient(135deg, var(--accent-primary), #a855f7)',
+                color: 'white', padding: '0.75rem 1.25rem', borderRadius: '12px',
+                border: 'none', cursor: 'pointer', fontWeight: 600, boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)'
+              }}
+            >
+              <Sparkles size={18} />
+              <span className="hide-mobile">Find My Craving</span>
+            </motion.button>
           </div>
           
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -588,6 +607,16 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
           onSuccess={handlePaymentSuccess} 
         />
       )}
+
+      <AnimatePresence>
+        {isTasteProfilerOpen && (
+          <TasteProfiler 
+            menu={menu} 
+            onClose={() => setIsTasteProfilerOpen(false)}
+            onSelectDish={(dish) => addToCart(dish)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

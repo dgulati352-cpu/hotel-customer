@@ -13,7 +13,14 @@ import { sendWelcomeEmail } from './utils/email';
 
 function App() {
   const [activeTab, setActiveTab] = useState('menu'); // 'menu' or 'orders'
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState(() => {
+    try {
+      const cached = localStorage.getItem('cachedOrders');
+      return cached ? JSON.parse(cached) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const [cart, setCart] = useState([]);
   const [tableNumber, setTableNumber] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -73,6 +80,7 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('app-theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -91,6 +99,7 @@ function App() {
       if (data) {
         const dishesData = Object.keys(data).map(key => ({ id: key, ...data[key] }));
         setMenu(dishesData);
+        localStorage.setItem('cachedMenu', JSON.stringify(dishesData));
       }
     });
 
@@ -101,6 +110,7 @@ function App() {
         let dbOrders = Object.keys(data).map(key => ({ id: key, ...data[key] }));
         dbOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         setOrders(dbOrders);
+        localStorage.setItem('cachedOrders', JSON.stringify(dbOrders));
       }
     });
 
@@ -131,6 +141,17 @@ function App() {
   const handlePlaceOrder = async (paymentDetails) => {
     if (cart.length === 0 || !tableNumber || !user) return;
 
+  const handlePlaceOrder = async (paymentDetails) => {
+    if (cart.length === 0 || !tableNumber || !user || isProcessingOrder) return;
+
+    const now = Date.now();
+    const lastOrderStr = localStorage.getItem(`lastOrderTime_${user.uid}`);
+    if (lastOrderStr && now - parseInt(lastOrderStr, 10) < 60000) {
+      alert("Please wait a minute before placing another order.");
+      return;
+    }
+
+    setIsProcessingOrder(true);
     try {
       const newOrderRef = push(ref(db, 'orders'));
       await set(newOrderRef, {
@@ -148,10 +169,78 @@ function App() {
         orderType: paymentDetails.orderType || 'dine-in',
         timestamp: new Date().toISOString()
       });
+      localStorage.setItem(`lastOrderTime_${user.uid}`, now.toString());
       setCart([]);
       setActiveTab('orders');
     } catch (e) {
       console.error("Error adding document: ", e);
+    } finally {
+      setIsProcessingOrder(false);
+    }
+  };
+
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const orderRef = ref(db, `orders/${orderId}`);
+      await update(orderRef, { status: newStatus });
+    } catch (e) {
+      console.error("Error updating order status: ", e);
+    }
+  };
+
+  const handleUpdateMenu = async (dishId, dishData) => {
+    try {
+      const dishRef = ref(db, `dishes/${dishId}`);
+      await update(dishRef, dishData);
+    } catch (e) {
+      console.error("Error updating dish: ", e);
+    }
+  };
+
+  const handleDeleteDish = async (dishId) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    try {
+      const dishRef = ref(db, `dishes/${dishId}`);
+      await set(dishRef, null);
+    } catch (e) {
+      console.error("Error deleting dish: ", e);
+    }
+  };
+
+  const handleAddDish = async (dishData) => {
+    try {
+      const dishesRef = push(ref(db, 'dishes'));
+      await set(dishesRef, dishData);
+    } catch (e) {
+      console.error("Error adding dish: ", e);
+    }
+  };
+
+  const handleFeedbackSubmit = async (feedbackData) => {
+    if (!user || isProcessingFeedback) return;
+
+    const now = Date.now();
+    const lastFeedbackStr = localStorage.getItem(`lastFeedbackTime_${user.uid}`);
+    if (lastFeedbackStr && now - parseInt(lastFeedbackStr, 10) < 60000) {
+      alert("Please wait a minute before submitting another feedback.");
+      return;
+    }
+
+    setIsProcessingFeedback(true);
+    try {
+      const feedbackRef = push(ref(db, 'feedback'));
+      await set(feedbackRef, feedbackData);
+      localStorage.setItem(`lastFeedbackTime_${user.uid}`, now.toString());
+      
+      // Update order to mark it as rated
+      if (feedbackData.orderId) {
+        const orderRef = ref(db, `orders/${feedbackData.orderId}`);
+        await update(orderRef, { hasFeedback: true });
+      }
+    } catch (e) {
+      console.error("Error submitting feedback: ", e);
+    } finally {
+      setIsProcessingFeedback(false);
     }
   };
 
@@ -256,6 +345,15 @@ function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <ClipboardList size={18} />
               <span>Orders</span>
+            </div>
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'admin' ? 'active' : ''}`}
+            onClick={() => setActiveTab('admin')}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Settings size={18} />
+              <span>Admin</span>
             </div>
           </button>
         </div>

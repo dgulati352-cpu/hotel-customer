@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FlavorFusion | Premium Experience</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/theme/black.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --r-main-font: 'Outfit', sans-serif;
+            --r-heading-font: 'Space Grotesk', sans-serif;
+            --r-main-color: #fff;
+            --r-heading-color: #fff;
+            --r-link-color: #ff4b2b;
+            --primary: #ff4b2b;
+            --secondary: #ff416c;
+            --accent: #6366f1;
+        }
+
+        body {
+            background: #050505;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* Animated Background Blobs */
+        .bg-blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            animation: float 20s infinite alternate;
+        }
+
+        .blob-1 { width: 400px; height: 400px; top: -100px; left: -100px; animation-delay: 0s; }
+        .blob-2 { width: 500px; height: 500px; bottom: -150px; right: -150px; background: linear-gradient(135deg, var(--accent), #a855f7); animation-delay: -5s; }
+        .blob-3 { width: 300px; height: 300px; top: 40%; left: 50%; background: var(--secondary); animation-delay: -10s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 100px) scale(1.2); }
+        }
+
+        .reveal {
+            font-family: var(--r-main-font);
+        }
+
+        .reveal .slides section {
+            text-align: left;
+            padding: 5% !important;
+            height: 100%;
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .reveal h1, .reveal h2 {
+            text-transform: none !important;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #ccc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5em;
+            letter-spacing: -0.02em;
+        }
+
+        .reveal h1 { font-size: 3.5rem; line-height: 1; }
+        .reveal h2 { font-size: 2.2rem; }
+
+        .highlight-text {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.02);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px;
+            width: 100%;
+        }
+
+        .reveal ul {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .reveal ul li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            opacity: 0.9;
+        }
+
+        .reveal ul li::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-right: 15px;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .reveal .controls-arrow {
+            color: var(--primary) !important;
+        }
+
+        .reveal .progress {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .reveal .progress span {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        /* Mockup Container */
+        .mockup-container {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 35%;
+            z-index: 10;
+        }
+
+        .mockup-img {
+            width: 100%;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            border: 4px solid rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .reveal h1 { font-size: 2.5rem; }
+            .reveal h2 { font-size: 1.8rem; }
+            .mockup-container { display: none; }
+            .reveal .slides section { padding: 8% !important; text-align: center; }
+            .reveal ul li { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="reveal">
+        <div class="slides">
+            <!-- Slide 1: Hero -->
+            <section data-transition="zoom">
+                <div style="max-width: 700px;">
+                    <h1 class="highlight-text">FlavorFusion</h1>
+                    <p style="font-size: 1.5rem; font-weight: 300; opacity: 0.8; margin-top: -10px;">The Next Generation of <span style="font-weight: 600; color: #fff;">Digital Dining.</span></p>
+                    <div style="width: 60px; height: 5px; background: var(--primary); margin: 30px 0; border-radius: 5px;"></div>
+                    <p style="font-size: 0.9rem; opacity: 0.6; line-height: 1.6;">A high-performance, offline-first ecosystem crafted for premium restaurants and their guests.</p>
+                </div>
+                <div class="mockup-container fragment fade-left">
+                    <img src="/assets/ui_mockup.png" class="mockup-img" alt="App UI">
+                </div>
+            </section>
+
+            <!-- Slide 2: The Vision -->
+            <section data-transition="slide">
+                <h2>The Vision <span style="font-weight: 300;">& Challenge</span></h2>
+                <div class="feature-grid">
+                    <div class="glass-card fragment fade-up">
+                        <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 10px;">The Problem</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.7;">Generic, slow-loading ordering systems that fail in high-traffic environments and lack brand soul.</p>
+                    </div>
+                    <div class="glass-card fragment fade-up" data-fragment-index="1">
+                        <h3 style="color: var(--accent); font-size: 1rem; margin-bottom: 10px;">Our Mission</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.7;">To bridge the gap between technology and taste with a seamless, resilient, and beautiful user experience.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: Core Features -->
+            <section data-transition="convex">
+                <h2 class="highlight-text">Core Innovation</h2>
+                <div class="feature-grid">
+                    <div class="glass-card fragment zoom-in">
+                        <span style="font-size: 0.9rem; font-weight: 700; display: block; margin-bottom: 5px;">Offline-First</span>
+                        <p style="font-size: 0.7rem; opacity: 0.6;">Service workers ensure instant loading even in dead zones. Zero connectivity is no longer a barrier.</p>
+                    </div>
+                    <div class="glass-card fragment zoom-in">
+                        <span style="font-size: 0.9rem; font-weight: 700; display: block; margin-bottom: 5px;">Smart Profiler</span>
+                        <p style="font-size: 0.7rem; opacity: 0.6;">A logic-driven engine that understands cravings, spice tolerance, and mood to recommend the perfect dish.</p>
+                    </div>
+                    <div class="glass-card fragment zoom-in">
+                        <span style="font-size: 0.9rem; font-weight: 700; display: block; margin-bottom: 5px;">Real-Time Sync</span>
+                        <p style="font-size: 0.7rem; opacity: 0.6;">Sub-second synchronization between customer carts and the kitchen dashboard using Firebase.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Aesthetic Design -->
+            <section data-background-image="/assets/hero.png" data-background-opacity="0.1">
+                <h2>Bespoke <span class="highlight-text">Aesthetics</span></h2>
+                <div class="glass-card" style="max-width: 600px;">
+                    <ul>
+                        <li class="fragment"><strong>Glassmorphism UI</strong>: Modern, transparent interfaces that feel light and premium.</li>
+                        <li class="fragment"><strong>Auto-Theme</strong>: Intelligent day/night detection based on the user's local time.</li>
+                        <li class="fragment"><strong>Micro-Animations</strong>: Silk-smooth Framer Motion transitions for every interaction.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Slide 5: Admin Control -->
+            <section data-background-image="/assets/admin.png" data-background-opacity="0.1">
+                <h2>Admin <span class="highlight-text">Dashboard</span></h2>
+                <div class="feature-grid">
+                    <div class="glass-card fragment fade-right">
+                        <span style="font-size: 0.9rem; font-weight: 700; display: block; margin-bottom: 5px;">Menu Management</span>
+                        <p style="font-size: 0.7rem; opacity: 0.6;">Modify prices, add new seasonal items, or delete out-of-stock dishes with zero downtime.</p>
+                    </div>
+                    <div class="glass-card fragment fade-right">
+                        <span style="font-size: 0.9rem; font-weight: 700; display: block; margin-bottom: 5px;">Kitchen Flow</span>
+                        <p style="font-size: 0.7rem; opacity: 0.6;">Live order tracking from 'Pending' to 'Delivered' with automated customer notifications.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Tech Stack -->
+            <section>
+                <h2>The <span class="highlight-text">Architecture</span></h2>
+                <div class="glass-card" style="display: flex; justify-content: space-between; align-items: center; padding: 50px;">
+                    <div style="text-align: center;">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 10px;">⚛️</span>
+                        <span style="font-size: 0.8rem; font-weight: 600;">React 19</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 10px;">🔥</span>
+                        <span style="font-size: 0.8rem; font-weight: 600;">Firebase</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 10px;">✨</span>
+                        <span style="font-size: 0.8rem; font-weight: 600;">Framer</span>
+                    </div>
+                    <div style="text-align: center;">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 10px;">⚡</span>
+                        <span style="font-size: 0.8rem; font-weight: 600;">Vite</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: Closing -->
+            <section data-transition="zoom" style="text-align: center; align-items: center;">
+                <h1 class="highlight-text" style="font-size: 4rem;">Elevate</h1>
+                <p style="font-size: 1.2rem; font-weight: 300; opacity: 0.8;">The Dining Experience with <span style="font-weight: 700;">FlavorFusion</span></p>
+                <div style="margin-top: 50px; opacity: 0.5; font-size: 0.8rem;">
+                    <p>Live: hotel-customer.vercel.app</p>
+                    <p>Presentation: localhost:5173/presentation.html</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.5.0/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            center: true,
+            width: 1200,
+            height: 800,
+            margin: 0.05,
+            minScale: 0.2,
+            maxScale: 2.0,
+            transition: 'convex',
+            backgroundTransition: 'fade',
+            controls: true,
+            progress: true,
+            responsive: true,
+            parallaxBackgroundImage: '',
+            parallaxBackgroundSize: '',
+        });
+    </script>
+</body>
+</html>
