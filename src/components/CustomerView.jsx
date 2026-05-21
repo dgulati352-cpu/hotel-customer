@@ -284,7 +284,7 @@ const CustomerView = ({ menu, cart, setCart, tableNumber, setTableNumber, onPlac
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              Lavassaa Premium
+              Flavour Fusion Fast
             </motion.h2>
             <motion.p 
               className="hero-subtitle"

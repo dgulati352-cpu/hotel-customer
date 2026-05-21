@@ -12,11 +12,7 @@ export const sendWelcomeEmail = async (user, tableNumber) => {
     to_name: user.displayName || 'Valued Guest',
     to_email: user.email,
     table_number: tableNumber,
-<<<<<<< Updated upstream
-    message: `Welcome to FlavorFusion! We are excited to serve you at Table ${tableNumber}. Explore our menu and enjoy your meal.`
-=======
-    message: `Welcome to Lavassaa! We are excited to serve you at Table ${tableNumber}. Explore our menu and enjoy your meal.`
->>>>>>> Stashed changes
+    message: `Welcome to Flavour Fusion Fast! We are excited to serve you at Table ${tableNumber}. Explore our menu and enjoy your meal.`
   };
 
   try {

@@ -63,9 +63,9 @@ const LoginView = ({ onLogin }) => {
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
             style={{ display: 'flex', justifyContent: 'center' }}
           >
-            <h1 style={{ color: 'var(--accent-primary)', fontFamily: '"Great Vibes", cursive', fontSize: '3.5rem', margin: 0 }}>Lavassa</h1>
+            <h1 style={{ color: 'var(--accent-primary)', fontWeight: 800, fontSize: '2.5rem', margin: 0, letterSpacing: '-0.04em' }}>Flavour Fusion Fast</h1>
           </motion.div>
-          <p style={{ fontSize: '1.1rem', marginTop: '1.25rem', color: 'var(--text-muted)' }}>Experience gourmet dining at your fingertips.</p>
+          <p style={{ fontSize: '1.1rem', marginTop: '0.75rem', color: 'var(--text-muted)' }}>Experience gourmet dining at your fingertips.</p>
         </div>
 
         {error && (
@@ -127,7 +127,7 @@ const LoginView = ({ onLogin }) => {
               const mockUser = {
                 uid: 'demo_customer_' + Math.floor(Math.random() * 10000),
                 displayName: 'Demo Customer',
-                email: 'demo@flavorfusion.com'
+                email: 'demo@flavourfusionfast.com'
               };
               onLogin(tableNum.trim(), mockUser);
             }}
